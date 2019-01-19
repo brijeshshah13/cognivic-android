@@ -15,6 +15,7 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,8 +23,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
 import com.hackreactive.cognivic.util.ApiService;
@@ -55,8 +58,11 @@ public class TestFragment extends Fragment {
     private View view;
     private HomeViewModel viewModel;
     private final static int TEST_IMAGE_RESULT = 102;
-    private Button btnAddImage;
-    private Button btnUpload;
+    private TextView testLabel;
+    private ImageView testImage;
+    private FloatingActionButton btnAddImage;
+    private FloatingActionButton btnUpload;
+    private LottieAnimationView uploadAnimation;
     private ApiService apiService;
     private Bitmap testBitmap;
     private Boolean isObjectImageUploaded = false;
@@ -87,9 +93,19 @@ public class TestFragment extends Fragment {
         });
 
         btnUpload = view.findViewById(R.id.btn_upload);
+        uploadAnimation = view.findViewById(R.id.upload_animation);
+        testLabel = view.findViewById(R.id.label_pick_test);
+        testImage = view.findViewById(R.id.img_test);
+
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                testLabel.setVisibility(View.GONE);
+                testImage.setVisibility(View.GONE);
+                btnAddImage.hide();
+                btnUpload.hide();
+                uploadAnimation.setAnimation(R.raw.uploading);
+                uploadAnimation.setVisibility(View.VISIBLE);
                 uploadImage(viewModel.getObjectBitmap(), 0);
             }
         });
@@ -264,6 +280,9 @@ public class TestFragment extends Fragment {
                                 if (response.code() == 200) {
                                     Log.i(LOG_TAG, "Res: " + response.toString());
                                     Toast.makeText(getContext(), "Test Image has been uploaded", Toast.LENGTH_SHORT).show();
+                                    uploadAnimation.setVisibility(View.GONE);
+                                    viewModel.setObjectBitmap(testBitmap);
+                                    HomeActivity.attachFragment(new ResultFragment());
                                 }
 
                             }

@@ -15,6 +15,7 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,8 +45,8 @@ public class ObjectFragment extends Fragment {
     private View view;
     private HomeViewModel viewModel;
     private final static int OBJECT_IMAGE_RESULT = 101;
-    private Button btnAddImage;
-    private Button btnNext;
+    private FloatingActionButton btnAddImage;
+    private FloatingActionButton btnNext;
     private Bitmap objectBitmap = null;
     private Socket socket;
 
