@@ -24,8 +24,8 @@ public class HomeActivity extends AppCompatActivity {
     public static final String LOG_TAG = HomeActivity.class.getSimpleName();
 
     // Global params
-    private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
+    private static FragmentManager fragmentManager;
+    private static FragmentTransaction fragmentTransaction;
     private final static int ALL_PERMISSIONS_RESULT = 107;
     private final ObjectFragment objectFragment = new ObjectFragment();
     private final TestFragment testFragment = new TestFragment();
@@ -61,12 +61,12 @@ public class HomeActivity extends AppCompatActivity {
      *
      * @param fragment Pass the Fragment to be launched
      */
-    private void attachFragment(Fragment fragment) {
+    public static void attachFragment(Fragment fragment) {
         String backStateName = fragment.getClass().getSimpleName();
 
-        Fragment fragmentFromBackStack = getSupportFragmentManager().findFragmentByTag(backStateName);
+        Fragment fragmentFromBackStack = fragmentManager.findFragmentByTag(backStateName);
+        fragmentTransaction = fragmentManager.beginTransaction();
 
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
         if (fragmentFromBackStack == null) {

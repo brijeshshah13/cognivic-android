@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
@@ -36,9 +37,10 @@ public class ObjectFragment extends Fragment {
     // Global fields
     private View view;
     private HomeViewModel viewModel;
-    private final static int IMAGE_RESULT = 200;
+    private final static int OBJECT_IMAGE_RESULT = 101;
     private Button btnAddImage;
-    private Bitmap objectBitmap;
+    private Button btnNext;
+    private Bitmap objectBitmap = null;
 
     @Nullable
     @Override
@@ -59,7 +61,25 @@ public class ObjectFragment extends Fragment {
         btnAddImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(getPickImageChooserIntent(), IMAGE_RESULT);
+                startActivityForResult(getPickImageChooserIntent(), OBJECT_IMAGE_RESULT);
+            }
+        });
+
+        btnNext = view.findViewById(R.id.btn_next);
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (objectBitmap != null) {
+
+                    HomeActivity.attachFragment(new TestFragment());
+
+                } else {
+
+                    Toast.makeText(getContext(), "Please select an Image", Toast.LENGTH_SHORT).show();
+
+                }
+
             }
         });
 
@@ -127,7 +147,7 @@ public class ObjectFragment extends Fragment {
 
             ImageView imageView = view.findViewById(R.id.img_object);
 
-            if (requestCode == IMAGE_RESULT) {
+            if (requestCode == OBJECT_IMAGE_RESULT) {
 
 
                 String filePath = getImageFilePath(data);
