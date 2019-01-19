@@ -58,9 +58,9 @@ public class TestFragment extends Fragment {
     private HomeViewModel viewModel;
     private final static int TEST_IMAGE_RESULT = 102;
     private TextView testLabel;
-    private ImageView testImage;
     private FloatingActionButton btnAddImage;
     private FloatingActionButton btnUpload;
+    private ImageView imgTest;
     private LottieAnimationView uploadAnimation;
     private ApiService apiService;
     private Bitmap testBitmap = null;
@@ -94,7 +94,7 @@ public class TestFragment extends Fragment {
         btnUpload = view.findViewById(R.id.btn_upload);
         uploadAnimation = view.findViewById(R.id.upload_animation);
         testLabel = view.findViewById(R.id.label_pick_test);
-        testImage = view.findViewById(R.id.img_test);
+        imgTest = view.findViewById(R.id.img_test);
 
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +103,7 @@ public class TestFragment extends Fragment {
                 if (testBitmap != null) {
 
                     testLabel.setVisibility(View.GONE);
-                    testImage.setVisibility(View.GONE);
+                    imgTest.setVisibility(View.GONE);
                     btnAddImage.hide();
                     btnUpload.hide();
                     uploadAnimation.setAnimation(R.raw.uploading);
@@ -180,15 +180,12 @@ public class TestFragment extends Fragment {
 
         if (resultCode == Activity.RESULT_OK) {
 
-            ImageView imageView = view.findViewById(R.id.img_test);
-
             if (requestCode == TEST_IMAGE_RESULT) {
-
 
                 String filePath = getImageFilePath(data);
                 if (filePath != null) {
                     testBitmap = BitmapFactory.decodeFile(filePath);
-                    imageView.setImageBitmap(testBitmap);
+                    imgTest.setImageBitmap(testBitmap);
                 }
             }
 
@@ -223,6 +220,12 @@ public class TestFragment extends Fragment {
 
         HomeViewModelFactory factory = InjectorUtils.provideHomeViewModelFactory(getActivity().getApplicationContext());
         viewModel = ViewModelProviders.of(getActivity(), factory).get(HomeViewModel.class);
+
+        testBitmap = viewModel.getTestBitmap();
+
+        if (testBitmap != null) {
+            imgTest.setImageBitmap(testBitmap);
+        }
 
     }
 
