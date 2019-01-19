@@ -46,6 +46,7 @@ public class ObjectFragment extends Fragment {
     private final static int OBJECT_IMAGE_RESULT = 101;
     private FloatingActionButton btnAddImage;
     private FloatingActionButton btnNext;
+    private ImageView imgObject;
     private Bitmap objectBitmap = null;
     private Socket socket;
 
@@ -61,6 +62,8 @@ public class ObjectFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        imgObject = view.findViewById(R.id.img_object);
 
         setupViewModel();
 
@@ -184,15 +187,13 @@ public class ObjectFragment extends Fragment {
 
         if (resultCode == Activity.RESULT_OK) {
 
-            ImageView imageView = view.findViewById(R.id.img_object);
-
             if (requestCode == OBJECT_IMAGE_RESULT) {
 
 
                 String filePath = getImageFilePath(data);
                 if (filePath != null) {
                     objectBitmap = BitmapFactory.decodeFile(filePath);
-                    imageView.setImageBitmap(objectBitmap);
+                    imgObject.setImageBitmap(objectBitmap);
                 }
             }
 
@@ -227,6 +228,12 @@ public class ObjectFragment extends Fragment {
 
         HomeViewModelFactory factory = InjectorUtils.provideHomeViewModelFactory(getActivity().getApplicationContext());
         viewModel = ViewModelProviders.of(getActivity(), factory).get(HomeViewModel.class);
+
+        objectBitmap = viewModel.getObjectBitmap();
+
+        if (objectBitmap != null) {
+            imgObject.setImageBitmap(objectBitmap);
+        }
 
     }
 
