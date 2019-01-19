@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,13 @@ import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class ObjectFragment extends Fragment {
 
@@ -41,6 +47,7 @@ public class ObjectFragment extends Fragment {
     private Button btnAddImage;
     private Button btnNext;
     private Bitmap objectBitmap = null;
+    private Socket socket;
 
     @Nullable
     @Override
@@ -81,6 +88,37 @@ public class ObjectFragment extends Fragment {
 
                 }
 
+            }
+        });
+
+        createSocket();
+
+    }
+
+    private void createSocket() {
+
+        IO.Options opts = new IO.Options();
+        opts.forceNew = true;
+
+        // Establish connection via Socket to local server
+        try {
+            socket = IO.socket("http://10.159.0.36:3000/");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.connect();
+
+        socket.on("result", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                String message = String.valueOf(args);
+
+                try {
+                    //message = data.getString("response");
+                    Log.i(LOG_TAG, "Socket Emit Listener: " + message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 

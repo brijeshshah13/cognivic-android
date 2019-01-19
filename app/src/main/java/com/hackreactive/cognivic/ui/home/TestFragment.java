@@ -204,7 +204,7 @@ public class TestFragment extends Fragment {
 
 
     private void initRetrofitClient() {
-        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://192.168.43.31:3000/api/").addConverterFactory(GsonConverterFactory.create());
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://10.159.0.36:3000/api/").addConverterFactory(GsonConverterFactory.create());
         Retrofit retrofit = builder.build();
         apiService = retrofit.create(ApiService.class);
     }
