@@ -79,6 +79,17 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if (fragmentManager.getBackStackEntryCount() == 0 ||
+                fragmentManager.getBackStackEntryCount() == 1) {
+            finish();
+        }
+
+    }
+
     private void askPermissions() {
         permissions.add(CAMERA);
         permissions.add(WRITE_EXTERNAL_STORAGE);
