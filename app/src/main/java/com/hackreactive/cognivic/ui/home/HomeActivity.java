@@ -83,8 +83,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
 
-        if (fragmentManager.getBackStackEntryCount() == 0 ||
-                fragmentManager.getBackStackEntryCount() == 1) {
+        if (fragmentManager.getBackStackEntryCount() == 0) {
             finish();
         }
 
