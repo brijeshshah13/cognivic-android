@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Cognivic</string>
+    <string name="button_next">next</string>
+    <string name="button_upload">upload</string>
 </resources>
