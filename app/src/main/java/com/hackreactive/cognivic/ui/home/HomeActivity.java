@@ -23,7 +23,6 @@ public class HomeActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = HomeActivity.class.getSimpleName();
 
-
     // Global params
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
@@ -53,6 +52,8 @@ public class HomeActivity extends AppCompatActivity {
     private void setupFragmentManager() {
         // Retrieve FragmentManager instance
         fragmentManager = getSupportFragmentManager();
+
+        attachFragment(objectFragment);
     }
 
     /**
@@ -156,9 +157,6 @@ public class HomeActivity extends AppCompatActivity {
                         }
                     }
 
-                } else {
-                    // All permissions are granted. Go ahead with app flow
-                    attachFragment(objectFragment);
                 }
 
                 break;
