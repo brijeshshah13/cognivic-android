@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,7 +63,7 @@ public class TestFragment extends Fragment {
     private FloatingActionButton btnUpload;
     private LottieAnimationView uploadAnimation;
     private ApiService apiService;
-    private Bitmap testBitmap;
+    private Bitmap testBitmap = null;
     private Boolean isObjectImageUploaded = false;
 
     @Nullable
@@ -100,13 +99,22 @@ public class TestFragment extends Fragment {
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                testLabel.setVisibility(View.GONE);
-                testImage.setVisibility(View.GONE);
-                btnAddImage.hide();
-                btnUpload.hide();
-                uploadAnimation.setAnimation(R.raw.uploading);
-                uploadAnimation.setVisibility(View.VISIBLE);
-                uploadImage(viewModel.getObjectBitmap(), 0);
+
+                if (testBitmap != null) {
+
+                    testLabel.setVisibility(View.GONE);
+                    testImage.setVisibility(View.GONE);
+                    btnAddImage.hide();
+                    btnUpload.hide();
+                    uploadAnimation.setAnimation(R.raw.uploading);
+                    uploadAnimation.setVisibility(View.VISIBLE);
+                    uploadImage(viewModel.getObjectBitmap(), 0);
+
+                } else {
+
+                    Toast.makeText(getContext(), "Please select an Image", Toast.LENGTH_SHORT).show();
+
+                }
             }
         });
 
