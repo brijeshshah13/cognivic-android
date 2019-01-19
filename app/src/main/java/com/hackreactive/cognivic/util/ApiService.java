@@ -10,6 +10,10 @@ import retrofit2.http.Part;
 
 public interface ApiService {
     @Multipart
-    @POST("/upload")
-    Call<ResponseBody> postImage(@Part MultipartBody.Part image, @Part("upload") RequestBody name);
+    @POST("uploadSource")
+    Call<ResponseBody> postSourceImage(@Part MultipartBody.Part image, @Part("upload") RequestBody name);
+
+    @Multipart
+    @POST("uploadTarget")
+    Call<ResponseBody> postTargetImage(@Part MultipartBody.Part image, @Part("upload") RequestBody name);
 }

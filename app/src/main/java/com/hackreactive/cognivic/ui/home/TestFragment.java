@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
 import com.hackreactive.cognivic.util.ApiService;
+import com.hackreactive.cognivic.util.AppExecutors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,8 +56,10 @@ public class TestFragment extends Fragment {
     private HomeViewModel viewModel;
     private final static int TEST_IMAGE_RESULT = 102;
     private Button btnAddImage;
+    private Button btnUpload;
     private ApiService apiService;
     private Bitmap testBitmap;
+    private Boolean isObjectImageUploaded = false;
 
     @Nullable
     @Override
@@ -67,7 +71,7 @@ public class TestFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         setupViewModel();
@@ -79,6 +83,14 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivityForResult(getPickImageChooserIntent(), TEST_IMAGE_RESULT);
+            }
+        });
+
+        btnUpload = view.findViewById(R.id.btn_upload);
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadImage(viewModel.getObjectBitmap(), 0);
             }
         });
 
@@ -192,53 +204,88 @@ public class TestFragment extends Fragment {
 
 
     private void initRetrofitClient() {
-        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://192.168.43.236:3000").addConverterFactory(GsonConverterFactory.create());
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://192.168.43.31:3000/api/").addConverterFactory(GsonConverterFactory.create());
         Retrofit retrofit = builder.build();
         apiService = retrofit.create(ApiService.class);
     }
 
-    private void uploadImage(Bitmap bitmap) {
+    private void uploadImage(final Bitmap bitmap, final int imgCode) {
 
-        try {
-            File filesDir = getContext().getFilesDir();
-            File file = new File(filesDir, "image" + ".png");
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos);
-            byte[] bitmapdata = bos.toByteArray();
+                try {
+                    File filesDir = getContext().getFilesDir();
+                    File file = new File(filesDir, "image" + ".png");
 
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bitmapdata);
-            fos.flush();
-            fos.close();
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos);
+                    byte[] bitmapdata = bos.toByteArray();
 
-            RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("upload", file.getName(), reqFile);
-            RequestBody name = RequestBody.create(MediaType.parse("text/plain"), "upload");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(bitmapdata);
+                    fos.flush();
+                    fos.close();
 
-            Call<ResponseBody> req = apiService.postImage(body, name);
-            req.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+                    RequestBody name = RequestBody.create(MediaType.parse("text/plain"), "upload");
 
-                    if (response.code() == 200) {
-                        Toast.makeText(getContext(), "Image has been uploaded", Toast.LENGTH_SHORT).show();
+                    if (imgCode == 0) {
+
+                        Call<ResponseBody> req = apiService.postSourceImage(body, name);
+                        req.enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                                if (response.code() == 200) {
+                                    Log.i(LOG_TAG, "Res: " + response.toString());
+                                    Toast.makeText(getContext(), "Object Image has been uploaded", Toast.LENGTH_SHORT).show();
+                                    uploadImage(testBitmap, 1);
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                Toast.makeText(getContext(), "Image Upload request failed!", Toast.LENGTH_SHORT).show();
+                                t.printStackTrace();
+                            }
+                        });
+
+                    } else {
+
+                        Call<ResponseBody> req = apiService.postTargetImage(body, name);
+                        req.enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                                if (response.code() == 200) {
+                                    Log.i(LOG_TAG, "Res: " + response.toString());
+                                    Toast.makeText(getContext(), "Test Image has been uploaded", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                Toast.makeText(getContext(), "Image Upload request failed!", Toast.LENGTH_SHORT).show();
+                                t.printStackTrace();
+                            }
+                        });
+
                     }
 
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Toast.makeText(getContext(), "Image Upload request failed!", Toast.LENGTH_SHORT).show();
-                    t.printStackTrace();
-                }
-            });
 
+            }
+        });
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

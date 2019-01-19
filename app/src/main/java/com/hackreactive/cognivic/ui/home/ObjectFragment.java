@@ -72,6 +72,7 @@ public class ObjectFragment extends Fragment {
 
                 if (objectBitmap != null) {
 
+                    viewModel.setObjectBitmap(objectBitmap);
                     HomeActivity.attachFragment(new TestFragment());
 
                 } else {
