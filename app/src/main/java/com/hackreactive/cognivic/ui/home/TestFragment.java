@@ -187,6 +187,7 @@ public class TestFragment extends Fragment {
                     testBitmap = BitmapFactory.decodeFile(filePath);
 
                     viewModel.setTestBitmap(testBitmap);
+                    viewModel.setTestBitmapPath(filePath);
 
                     imgTest.setImageBitmap(testBitmap);
                 }

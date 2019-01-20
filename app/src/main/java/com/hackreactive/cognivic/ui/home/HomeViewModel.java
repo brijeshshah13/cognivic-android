@@ -11,7 +11,7 @@ public class HomeViewModel extends ViewModel {
     private static final String LOG_TAG = HomeViewModel.class.getSimpleName();
 
     private final NetworkDataSource mNetworkDataSource;
-    private final Item item;
+    private Item item;
 
     public HomeViewModel(NetworkDataSource networkDataSource) {
 
@@ -35,5 +35,14 @@ public class HomeViewModel extends ViewModel {
     public void setTestBitmap(Bitmap bitmap) {
         item.setTestBitmap(bitmap);
     }
+
+    public String getTestImagePath() {
+        return item.getTestImagePath();
+    }
+
+    public void setTestBitmapPath(String path) {
+        item.setTestImagePath(path);
+    }
+
 
 }

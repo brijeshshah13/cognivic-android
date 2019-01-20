@@ -1,6 +1,11 @@
 package com.hackreactive.cognivic.ui.home;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -19,6 +25,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
+import com.hackreactive.cognivic.models.Coords;
 import com.hackreactive.cognivic.util.ApiService;
 import com.hackreactive.cognivic.util.VolleySingleton;
 
@@ -36,6 +43,10 @@ public class ResultFragment extends Fragment {
     private LottieAnimationView animationView;
     private ApiService apiService;
     private RequestQueue requestQueue;
+    Bitmap testBitmap;
+    Bitmap mutable;
+    Paint paint;
+    private ImageView imgResult;
 
     @Nullable
     @Override
@@ -51,6 +62,7 @@ public class ResultFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         animationView = view.findViewById(R.id.lottie_success);
+        imgResult = view.findViewById(R.id.img_result);
 
         setupViewModel();
 
@@ -71,6 +83,10 @@ public class ResultFragment extends Fragment {
                     @Override
                     public void onResponse(JSONObject response) {
 
+                        animationView.playAnimation();
+                        Log.i(LOG_TAG, "Res: " + response.toString());
+                        Toast.makeText(getContext(), "Object Detection request spawned!", Toast.LENGTH_SHORT).show();
+
                         try {
 
                             JSONObject dataObject = response.getJSONObject("data");
@@ -79,9 +95,14 @@ public class ResultFragment extends Fragment {
 
                             if (objectMatched) {
 
-                                animationView.playAnimation();
-
                                 JSONArray objectArray = dataObject.getJSONArray("objects");
+
+                                testBitmap = viewModel.getTestBitmap();
+
+                                mutable = testBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+                                int width = testBitmap.getWidth();
+                                int height = testBitmap.getHeight();
 
                                 for (int i = 0; i < objectArray.length(); i++) {
 
@@ -90,8 +111,61 @@ public class ResultFragment extends Fragment {
                                     String name = item.getString("name");
                                     String score = item.getString("score");
 
-                                    Log.i(LOG_TAG, "Name: " + name + " score: " + score);
+                                    JSONObject polyObject = item.getJSONObject("boundingPoly");
 
+                                    JSONArray vectorArray = polyObject.getJSONArray("normalizedVertices");
+
+                                    Canvas drawingBoard = new Canvas(mutable);
+                                    drawingBoard.drawBitmap(mutable, 0, 0, null);
+
+                                    paint = new Paint();
+                                    paint.setColor(Color.RED);
+                                    paint.setStrokeWidth(30);
+
+                                    Coords[] coords = new Coords[vectorArray.length() + 1];
+
+                                    for (int j = 0; j < vectorArray.length(); j++) {
+
+                                        JSONObject cords = vectorArray.getJSONObject(i);
+
+                                        double x = cords.getDouble("x");
+                                        double y = cords.getDouble("y");
+
+                                        float plotX = (float) x * width;
+                                        float plotY = (float) y * height;
+
+                                        Coords coordsObj = new Coords(plotX, plotY);
+
+                                        coords[j] = coordsObj;
+
+                                    }
+
+                                    Coords temp = new Coords(coords[0].getX(), coords[0].getY());
+                                    coords[vectorArray.length()] = temp;
+
+                                    Log.i(LOG_TAG, "length" + coords.length);
+
+                                    for (int k = 0; k < coords.length - 1; k++) {
+                                        drawingBoard.drawLine(
+                                                coords[k].getX(),
+                                                coords[k].getY(),
+                                                coords[k + 1].getX(),
+                                                coords[k + 1].getY(),
+                                                paint);
+
+                                        Log.i(LOG_TAG, "k X : " + coords[k].getX() + " k Y " + coords[k].getY());
+
+                                    }
+                                    drawingBoard.drawLine(
+                                            1175,
+                                            30,
+                                            100,
+                                            150,
+                                            paint);
+
+                                    //animationView.setVisibility(View.GONE);
+
+                                    imgResult.setImageDrawable(new BitmapDrawable(getResources(), mutable));
                                 }
 
                             } else {
@@ -104,8 +178,6 @@ public class ResultFragment extends Fragment {
                             e.printStackTrace();
                         }
 
-                        Log.i(LOG_TAG, "Res: " + response.toString());
-                        Toast.makeText(getContext(), "Object Detection request spawned!", Toast.LENGTH_SHORT).show();
 
                     }
                 },
@@ -118,13 +190,110 @@ public class ResultFragment extends Fragment {
         ) {
             @Override
             protected com.android.volley.Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+
+//                // Retrieve status code
+//                Integer statusCode = response.statusCode;
+//
+//                if (statusCode == 200) {
+//
+//                    try {
+//
+//                        // Parse response data into String
+//                        String responseString = new String(response.data, "UTF-8");
+//                        JSONObject resObject = new JSONObject(responseString);
+//
+//                        JSONObject dataObject = resObject.getJSONObject("data");
+//
+//                        Boolean objectMatched = dataObject.getBoolean("matched");
+//
+//                        if (objectMatched) {
+//
+//                            JSONArray objectArray = dataObject.getJSONArray("objects");
+//
+//                            testBitmap = viewModel.getTestBitmap();
+//
+//                            mutable = testBitmap.copy(Bitmap.Config.ARGB_8888, true);
+//
+//                            int width = testBitmap.getWidth();
+//                            int height = testBitmap.getHeight();
+//
+//                            for (int i = 0; i < objectArray.length(); i++) {
+//
+//                                JSONObject item = objectArray.getJSONObject(i);
+//
+//                                String name = item.getString("name");
+//                                String score = item.getString("score");
+//
+//                                JSONObject polyObject = item.getJSONObject("boundingPoly");
+//
+//                                JSONArray vectorArray = polyObject.getJSONArray("normalizedVertices");
+//
+//                                Canvas drawingBoard = new Canvas(mutable);
+//                                drawingBoard.drawBitmap(mutable, 0, 0, null);
+//
+//                                Paint paint = new Paint();
+//                                paint.setColor(Color.RED);
+//                                paint.setStrokeWidth(2);
+//
+//                                Coords[] coords = new Coords[vectorArray.length() + 1];
+//
+//                                for (int j = 0; j < vectorArray.length(); j++) {
+//
+//                                    JSONObject cords = vectorArray.getJSONObject(i);
+//
+//                                    double x = cords.getDouble("x");
+//                                    double y = cords.getDouble("y");
+//
+//                                    float plotX = (float) x * width;
+//                                    float plotY = (float) y * height;
+//
+//                                    Coords coordsObj = new Coords(plotX, plotY);
+//
+//                                    coords[j] = coordsObj;
+//
+//                                }
+//
+//                                Coords temp = new Coords(coords[0].getX(), coords[0].getY());
+//                                coords[vectorArray.length()] = temp;
+//
+//                                for (int k = 0; k < coords.length - 1; k++) {
+//                                    drawingBoard.drawLine(
+//                                            coords[k].getX(),
+//                                            coords[k].getY(),
+//                                            coords[k+1].getX(),
+//                                            coords[k+1].getY(),
+//                                            paint);
+//
+//                                }
+//
+//                                //animationView.setVisibility(View.GONE);
+//
+//                                imgResult.setImageDrawable(new BitmapDrawable(getResources(), mutable));
+//                            }
+//
+//                        } else {
+//
+//                            // Didn't match
+//
+//                        }
+//
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                } else {
+//                    // status code
+//                }
+
+
                 return super.parseNetworkResponse(response);
             }
         };
 
         // Queue the request
         requestQueue.add(checkMatchRequest);
-
 
 
     }
@@ -136,6 +305,8 @@ public class ResultFragment extends Fragment {
 
         HomeViewModelFactory factory = InjectorUtils.provideHomeViewModelFactory(getActivity().getApplicationContext());
         viewModel = ViewModelProviders.of(getActivity(), factory).get(HomeViewModel.class);
+
+        testBitmap = viewModel.getTestBitmap();
 
     }
 

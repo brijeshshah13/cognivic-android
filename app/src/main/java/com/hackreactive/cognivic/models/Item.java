@@ -6,6 +6,7 @@ public class Item {
 
     private Bitmap objectBitmap;
     private Bitmap testBitmap;
+    private String testImagePath;
 
     public Bitmap getObjectBitmap() {
         return objectBitmap;
@@ -21,5 +22,13 @@ public class Item {
 
     public void setTestBitmap(Bitmap testBitmap) {
         this.testBitmap = testBitmap;
+    }
+
+    public String getTestImagePath() {
+        return testImagePath;
+    }
+
+    public void setTestImagePath(String testImagePath) {
+        this.testImagePath = testImagePath;
     }
 }
