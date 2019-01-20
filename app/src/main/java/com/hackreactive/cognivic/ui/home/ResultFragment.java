@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
 
@@ -19,6 +20,7 @@ public class ResultFragment extends Fragment {
     // Global fields
     private View view;
     private HomeViewModel viewModel;
+    private LottieAnimationView animationView;
 
     @Nullable
     @Override
@@ -32,6 +34,9 @@ public class ResultFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        animationView = view.findViewById(R.id.lottie_success);
+        animationView.playAnimation();
 
         setupViewModel();
     }
