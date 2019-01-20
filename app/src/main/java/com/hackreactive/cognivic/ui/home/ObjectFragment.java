@@ -82,7 +82,6 @@ public class ObjectFragment extends Fragment {
 
                 if (objectBitmap != null) {
 
-                    viewModel.setObjectBitmap(objectBitmap);
                     HomeActivity.attachFragment(new TestFragment());
 
                 } else {
@@ -192,6 +191,9 @@ public class ObjectFragment extends Fragment {
                 String filePath = getImageFilePath(data);
                 if (filePath != null) {
                     objectBitmap = BitmapFactory.decodeFile(filePath);
+
+                    viewModel.setObjectBitmap(objectBitmap);
+
                     imgObject.setImageBitmap(objectBitmap);
                 }
             }

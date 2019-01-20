@@ -79,6 +79,11 @@ public class TestFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        btnUpload = view.findViewById(R.id.btn_upload);
+        uploadAnimation = view.findViewById(R.id.upload_animation);
+        testLabel = view.findViewById(R.id.label_pick_test);
+        imgTest = view.findViewById(R.id.img_test);
+
         setupViewModel();
 
         initRetrofitClient();
@@ -90,11 +95,6 @@ public class TestFragment extends Fragment {
                 startActivityForResult(getPickImageChooserIntent(), TEST_IMAGE_RESULT);
             }
         });
-
-        btnUpload = view.findViewById(R.id.btn_upload);
-        uploadAnimation = view.findViewById(R.id.upload_animation);
-        testLabel = view.findViewById(R.id.label_pick_test);
-        imgTest = view.findViewById(R.id.img_test);
 
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,6 +185,9 @@ public class TestFragment extends Fragment {
                 String filePath = getImageFilePath(data);
                 if (filePath != null) {
                     testBitmap = BitmapFactory.decodeFile(filePath);
+
+                    viewModel.setTestBitmap(testBitmap);
+
                     imgTest.setImageBitmap(testBitmap);
                 }
             }
