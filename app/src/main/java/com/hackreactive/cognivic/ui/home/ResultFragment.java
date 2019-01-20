@@ -126,7 +126,7 @@ public class ResultFragment extends Fragment {
 
                                     for (int j = 0; j < vectorArray.length(); j++) {
 
-                                        JSONObject cords = vectorArray.getJSONObject(i);
+                                        JSONObject cords = vectorArray.getJSONObject(j);
 
                                         double x = cords.getDouble("x");
                                         double y = cords.getDouble("y");
@@ -146,8 +146,7 @@ public class ResultFragment extends Fragment {
                                     Log.i(LOG_TAG, "length" + coords.length);
 
                                     for (int k = 0; k < coords.length - 1; k++) {
-                                        drawingBoard.drawLine(
-                                                coords[k].getX(),
+                                        drawingBoard.drawLine(coords[k].getX(),
                                                 coords[k].getY(),
                                                 coords[k + 1].getX(),
                                                 coords[k + 1].getY(),
