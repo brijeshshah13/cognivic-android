@@ -155,12 +155,6 @@ public class ResultFragment extends Fragment {
                                         Log.i(LOG_TAG, "k X : " + coords[k].getX() + " k Y " + coords[k].getY());
 
                                     }
-                                    drawingBoard.drawLine(
-                                            1175,
-                                            30,
-                                            100,
-                                            150,
-                                            paint);
 
                                     //animationView.setVisibility(View.GONE);
 
