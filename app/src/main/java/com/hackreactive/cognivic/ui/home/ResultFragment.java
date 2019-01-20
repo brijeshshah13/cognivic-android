@@ -145,6 +145,11 @@ public class ResultFragment extends Fragment {
 
                                     Log.i(LOG_TAG, "length" + coords.length);
 
+                                    Paint textPaint = new Paint();
+                                    textPaint.setColor(Color.RED);
+                                    textPaint.setTextSize(120);
+                                    drawingBoard.drawText(name, coords[0].getX(), coords[0].getY() - 60, textPaint);
+
                                     for (int k = 0; k < coords.length - 1; k++) {
                                         drawingBoard.drawLine(coords[k].getX(),
                                                 coords[k].getY(),
