@@ -189,7 +189,6 @@ public class ObjectFragment extends Fragment {
 
             if (requestCode == OBJECT_IMAGE_RESULT) {
 
-
                 String filePath = getImageFilePath(data);
                 if (filePath != null) {
                     objectBitmap = BitmapFactory.decodeFile(filePath);

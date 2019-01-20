@@ -244,10 +244,10 @@ public class TestFragment extends Fragment {
 
                 try {
                     File filesDir = getContext().getFilesDir();
-                    File file = new File(filesDir, "image" + ".png");
+                    File file = new File(filesDir, "image" + ".jpeg");
 
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
                     byte[] bitmapdata = bos.toByteArray();
 
                     FileOutputStream fos = new FileOutputStream(file);
