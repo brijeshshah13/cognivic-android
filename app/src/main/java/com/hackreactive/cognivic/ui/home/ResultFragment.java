@@ -12,17 +12,19 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.hackreactive.cognivic.R;
 import com.hackreactive.cognivic.data.InjectorUtils;
 import com.hackreactive.cognivic.util.ApiService;
-import com.hackreactive.cognivic.util.AppExecutors;
+import com.hackreactive.cognivic.util.VolleySingleton;
 
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ResultFragment extends Fragment {
 
@@ -33,6 +35,7 @@ public class ResultFragment extends Fragment {
     private HomeViewModel viewModel;
     private LottieAnimationView animationView;
     private ApiService apiService;
+    private RequestQueue requestQueue;
 
     @Nullable
     @Override
@@ -51,55 +54,78 @@ public class ResultFragment extends Fragment {
 
         setupViewModel();
 
-        initRetrofitClient();
+        // Get Singleton Volley Request Queue Instance
+        requestQueue = VolleySingleton.getInstance(getActivity()).getRequestQueue();
 
         matchImages();
 
     }
 
-    private void initRetrofitClient() {
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl("http://10.159.0.36:3000/api/")
-                .addConverterFactory(GsonConverterFactory.create());
-        Retrofit retrofit = builder.build();
-        apiService = retrofit.create(ApiService.class);
-    }
-
     private void matchImages() {
 
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
+        JsonObjectRequest checkMatchRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                "http://10.159.0.36:3000/api/checkMatch",
+                null,
+                new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
 
-                try {
+                        try {
 
-                    Call<ResponseBody> req = apiService.postCheckMatch();
-                    req.enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            JSONObject dataObject = response.getJSONObject("data");
 
-                            if (response.code() == 200) {
-                                Log.i(LOG_TAG, "Res: " + response.toString());
-                                Toast.makeText(getContext(), "Object Detection request spawned!", Toast.LENGTH_SHORT).show();
+                            Boolean objectMatched = dataObject.getBoolean("matched");
+
+                            if (objectMatched) {
+
                                 animationView.playAnimation();
+
+                                JSONArray objectArray = dataObject.getJSONArray("objects");
+
+                                for (int i = 0; i < objectArray.length(); i++) {
+
+                                    JSONObject item = objectArray.getJSONObject(i);
+
+                                    String name = item.getString("name");
+                                    String score = item.getString("score");
+
+                                    Log.i(LOG_TAG, "Name: " + name + " score: " + score);
+
+                                }
+
+                            } else {
+
+                                // Didn't match
+
                             }
 
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            Toast.makeText(getContext(), "Object Detection request failed", Toast.LENGTH_SHORT).show();
-                            t.printStackTrace();
-                        }
-                    });
+                        Log.i(LOG_TAG, "Res: " + response.toString());
+                        Toast.makeText(getContext(), "Object Detection request spawned!", Toast.LENGTH_SHORT).show();
 
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    }
+                },
+                new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.i(LOG_TAG, "Error: " + error.toString());
+                    }
                 }
-
+        ) {
+            @Override
+            protected com.android.volley.Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                return super.parseNetworkResponse(response);
             }
-        });
+        };
+
+        // Queue the request
+        requestQueue.add(checkMatchRequest);
+
+
 
     }
 

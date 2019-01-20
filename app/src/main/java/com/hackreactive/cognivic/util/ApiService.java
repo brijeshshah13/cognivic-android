@@ -17,7 +17,4 @@ public interface ApiService {
     @POST("uploadTarget")
     Call<ResponseBody> postTargetImage(@Part MultipartBody.Part image, @Part("upload") RequestBody name);
 
-
-    @POST("checkMatch")
-    Call<ResponseBody> postCheckMatch();
 }
